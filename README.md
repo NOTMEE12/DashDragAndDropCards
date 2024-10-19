@@ -1,6 +1,6 @@
 # Drag and Drop cards example for Dash Plotly
 
-[Video of the concept]()
+![](/.github/video.mp4)
 
 
 ## Tools/Projects used:
