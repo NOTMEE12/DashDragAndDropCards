@@ -1,6 +1,6 @@
 # Drag and Drop cards example for Dash Plotly
 
-![](/.github/video.mp4)
+https://github.com/user-attachments/assets/d8aa8eeb-e023-4cee-aee9-03845658251b
 
 
 ## Tools/Projects used:
@@ -23,6 +23,7 @@ then run:
 ```commandline
 python main.py --theme="dark"
 ```
+---
 
 > [!NOTE]  
 > To change the amount of columns, open `data.py` and change `column_amount` value.  
