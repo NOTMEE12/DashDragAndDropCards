@@ -6,6 +6,8 @@ from dash import (
     Output,
     ClientsideFunction,
     clientside_callback,
+    State,
+    set_props,
 )
 from dash._dash_renderer import _set_react_version
 
@@ -37,9 +39,16 @@ clientside_callback(
 )
 
 
-@app.callback(Output(data.ids.grid, "children"), Input(data.ids.input, "value"))
-def show_data(_):
-    return get_columns_layout()
+@app.callback(
+    Output(data.ids.grid, "children"),
+    Output(data.ids.mirror_container, "children"),
+    Input(data.ids.input, "value"),
+)
+def show_data(table: str):
+    set_props(data.ids.grid, {"children": []})
+    return get_columns_layout(int(table)), get_columns_layout(
+        int(table), is_mirror=True
+    )
 
 
 @app.callback(
@@ -49,35 +58,37 @@ def show_data(_):
     Input(data.ids.output_store_column_id, "data"),
     Input(data.ids.output_store_old_column_id, "data"),
     Input(data.ids.output_store_position_id, "data"),
+    State(data.ids.input, "value"),
     prevent_initial_call=True,
 )
-def show_changes(card_id, column_id, old_column_id, position_id):
+def show_changes(card_id, column_id, old_column_id, position_id, table: str):
+    table = int(table)
     if (
         card_id is None
         or column_id is None
         or old_column_id is None
         or position_id is None
     ):
-        return no_update, get_columns_layout(is_mirror=True)
+        return no_update, get_columns_layout(table, is_mirror=True)
 
     column = int(column_id)
     old_col = int(old_column_id)
 
-    old_card_positions = data.card_positions.copy()
+    old_card_positions = data.card_positions[table].copy()
 
-    data.card_positions[card_id]["column"] = column
+    data.card_positions[table][card_id]["column"] = column
 
     def filter_every_card_down_from_old_pos(card):
         _, card_pos = card
         return (
             card_pos["column"] == old_col
-            and card_pos["index"] >= data.card_positions[card_id]["index"] + 1
+            and card_pos["index"] >= data.card_positions[table][card_id]["index"] + 1
         )
 
     for card_id_, card_data_ in filter(
-        filter_every_card_down_from_old_pos, data.card_positions.items()
+        filter_every_card_down_from_old_pos, data.card_positions[table].items()
     ):
-        data.card_positions[card_id_]["index"] -= 1
+        data.card_positions[table][card_id_]["index"] -= 1
 
     if int(position_id) != -1:
 
@@ -87,13 +98,13 @@ def show_changes(card_id, column_id, old_column_id, position_id):
 
         new_position = old_card_positions[int(position_id)]["index"]
         for card_id_, card_data in filter(
-            filter_every_card_down_from_new_pos, data.card_positions.items()
+            filter_every_card_down_from_new_pos, data.card_positions[table].items()
         ):
-            data.card_positions[card_id_]["index"] += 1
+            data.card_positions[table][card_id_]["index"] += 1
 
-        data.card_positions[card_id]["index"] = new_position
+        data.card_positions[table][card_id]["index"] = new_position
     else:
-        data.card_positions[card_id]["index"] = (
+        data.card_positions[table][card_id]["index"] = (
             len(
                 tuple(
                     filter(
@@ -113,7 +124,7 @@ def show_changes(card_id, column_id, old_column_id, position_id):
             action="show",
             withBorder=True,
         ),
-        get_columns_layout(is_mirror=True),
+        get_columns_layout(table, is_mirror=True),
     )
 
 

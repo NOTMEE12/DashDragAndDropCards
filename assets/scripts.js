@@ -37,6 +37,10 @@ window.dash_clientside.draggable = {
                     dash_clientside.set_props(store_old_column_id, {"data": old_column_id})
                     console.log("Position: ", position == -1 ? "Last" : `Higher than card with ID ${position}`)
                     dash_clientside.set_props(store_position_id, {"data": position})
+
+//                    console.log(source.id, source.childNodes)
+//                    document.getElementById(stringify(source.id)).replaceChildren(new dash_mantine_components.Container([new dash_mantine_components.Text("test")]))
+//                    document.getElementById(stringify(target.id)).replaceChildren([])
                 }
             );
 

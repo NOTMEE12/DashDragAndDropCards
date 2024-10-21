@@ -11,11 +11,15 @@ def get_layout():
         children=[
             dmc.Flex(
                 [
-                    dmc.NumberInput(
-                        value=1,
+                    dmc.Select(
+                        value="0",
                         id=data.ids.input,
-                        label="Input",
-                        description="Once changed should update the layout",
+                        data=tuple(
+                            {"label": f"{table}", "value": str(table)}
+                            for table in range(data.table_dimensions)
+                        ),
+                        label="Table",
+                        description="Once changed will update the layout",
                         m="md",
                         size="md",
                         w="100%",
@@ -30,7 +34,7 @@ def get_layout():
                     dmc.SimpleGrid(
                         # if I have get_columns_layout here it won't work because I have "dynamic" layouts
                         # that's why I have mirror, and it creates nice transition
-                        get_columns_layout(is_mirror=True),
+                        get_columns_layout(0, is_mirror=True),
                         cols=data.column_amount,
                         miw=data.column_amount * 450,
                         spacing="sm",
@@ -38,7 +42,7 @@ def get_layout():
                         id=data.ids.grid,
                     ),
                     dmc.SimpleGrid(
-                        children=get_columns_layout(is_mirror=True),
+                        children=get_columns_layout(0, is_mirror=True),
                         cols=data.column_amount,
                         miw=data.column_amount * 450,
                         spacing="sm",
@@ -67,13 +71,14 @@ def get_layout():
     )
 
 
-def get_columns_layout(is_mirror=False):
+def get_columns_layout(table: int, is_mirror=False):
     return [
         get_column_layout(
             col,
             sorted(
                 filter(
-                    lambda card: card[1]["column"] == col, data.card_positions.items()
+                    lambda card: card[1]["column"] == col,
+                    data.card_positions[table].items(),
                 ),
                 key=lambda card: card[1]["index"],
             ),
